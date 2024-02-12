@@ -1,61 +1,70 @@
 import { useState } from "react";
 import "./home.css";
 function Home() {
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("");
-  const [country, setCountry] = useState("");
-  const [agree, setAgree] = useState(false);
-  const [nameError, setNameError] = useState("");
-  const [genderError, setGenderError] = useState("");
-  const [countryError, setCountryError] = useState("");
-  const [agreeError, setAgreeError] = useState("");
-
+  const [formData, setFormData] = useState({
+    name: "",
+    gender: "",
+    country: "",
+    agree: false,
+  });
+  const [formError, setFormError] = useState({
+    nameError: "",
+    genderError: "",
+    countryError: "",
+    agreeError: "",
+  });
   function onSubmit(e) {
     e.preventDefault();
-    if (!name) {
-      setNameError("Please enter name");
-    } else {
-      setNameError("");
+    setFormError({
+      nameError: "",
+      genderError: "",
+      countryError: "",
+      agreeError: "",
+    });
+    if (!formData.name) {
+      setFormError((state) => {
+        return { ...state, nameError: "Please enter name" };
+      });
     }
-    if (!gender) {
-      setGenderError("Please select a gender");
-    } else {
-      setGenderError("");
+    if (!formData.gender) {
+      setFormError((state) => {
+        return { ...state, genderError: "Please select a gender" };
+      });
     }
-    if (!country) {
-      setCountryError("Please select a country");
-    } else {
-      setCountryError("");
+    if (!formData.country) {
+      setFormError((state) => {
+        return { ...state, countryError: "Please select a country" };
+      });
     }
-    if (!agree) {
-      setAgreeError("Please check the box");
-    } else {
-      setAgreeError("");
+    if (!formData.agree) {
+      setFormError((state) => {
+        return { ...state, agreeError: "Please select the checkbox" };
+      });
     }
   }
-
   return (
     <>
       <form>
         <input
+          value={formData.name}
           placeholder="Name"
-          value={name}
           onChange={(e) => {
-            setName(e.target.value);
+            setFormData({ ...formData, name: e.target.value });
           }}
           type="text"
         />
-        <span className="error">{nameError}</span>
+        <span className="error">{formError.nameError}</span>
         <div>
           <label>
             Male
             <input
               name="gender"
               onChange={(e) => {
-                setGender(e.target.value);
+                setFormData({ ...formData, gender: e.target.value });
               }}
               type="radio"
               value="male"
+              checked={formData.gender === "male" ? true : false}
             />
           </label>
           <label>
@@ -63,20 +72,21 @@ function Home() {
             <input
               name="gender"
               onChange={(e) => {
-                setGender(e.target.value);
+                setFormData({ ...formData, gender: e.target.value });
               }}
               type="radio"
               value="female"
+              checked={formData.gender === "female" ? true : false}
             />
           </label>
         </div>
-        <span className="error">{genderError}</span>
+        <span className="error">{formError?.genderError}</span>
         <div>
           <select
-            value={country}
+            value={formData.country}
             name="country"
             onChange={(e) => {
-              setCountry(e.target.value);
+              setFormData({ ...formData, country: e.target.value });
             }}
           >
             <option value="">Select...</option>
@@ -85,18 +95,18 @@ function Home() {
             <option value="usa">USA</option>
           </select>
         </div>
-        <span className="error">{countryError}</span>
+        <span className="error">{formError?.countryError}</span>
         <label>
           <input
             type="checkbox"
             onChange={(e) => {
-              setAgree(e.target.checked);
+              setFormData({ ...formData, agree: e.target.checked });
             }}
-            value="hello"
+            checked={formData.agree}
           />
           Please agree
         </label>
-        <span className="error">{agreeError}</span>
+        <span className="error">{formError.agreeError}</span>
         <br />
         <button
           onClick={(e) => {
