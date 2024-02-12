@@ -1,0 +1,30 @@
+nav {
+  height: 60px;
+}
+.navbar {
+  display: flex;
+  justify-content: center;
+  font-size: 1.2rem;
+  list-style: none;
+  position: fixed;
+  background-color: antiquewhite;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  top: 0;
+}
+nav {
+  width: 100%;
+}
+.navbar > li > a {
+  margin: 0px 1rem 0px 1rem;
+  padding: 10px 1rem 10px 1rem;
+  text-decoration: none;
+  color: black;
+}
+.navbar > li:hover {
+  cursor: pointer;
+  background-color: rgb(161, 202, 238);
+  transition: background-color 0.2s ease-in-out;
+  border-radius: 5px;
+}

@@ -1,0 +1,11 @@
+.error-card {
+  display: flex;
+  height: fit-content;
+  flex-direction: column;
+  margin-top: 30vh;
+  padding: 50px;
+  border-radius: 10px;
+  gap: 20px;
+  box-shadow: -40px 40px 0px rgba(0, 0, 0, 0.05);
+  width: 60vw;
+}
