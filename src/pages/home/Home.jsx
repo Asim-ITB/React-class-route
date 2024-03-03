@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./home.css";
+import axios from "axios";
 function Home() {
   const [formData, setFormData] = useState({
     name: "",
@@ -19,7 +20,7 @@ function Home() {
       nameError: "",
       genderError: "",
       countryError: "",
-      agreeError: "",
+      agreeError: false,
     });
     if (!formData.name) {
       setFormError((state) => {
@@ -42,9 +43,22 @@ function Home() {
       });
     }
   }
+  async function posting(e) {
+    e.preventDefault();
+    try {
+      const data = await axios({
+        method: "post",
+        url: "http://localhost:5001/post-data",
+        data: formData,
+      });
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
   return (
     <>
-      <form>
+      <form onSubmit={posting}>
         <input
           value={formData.name}
           placeholder="Name"
@@ -108,13 +122,7 @@ function Home() {
         </label>
         <span className="error">{formError.agreeError}</span>
         <br />
-        <button
-          onClick={(e) => {
-            onSubmit(e);
-          }}
-        >
-          submit
-        </button>
+        <button type="submit">submit</button>
       </form>
     </>
   );
