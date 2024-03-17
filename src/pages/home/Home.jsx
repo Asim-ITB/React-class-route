@@ -1,130 +1,201 @@
-import { useState } from "react";
-import "./home.css";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import Spinner from "../../components/Spinner";
+
 function Home() {
-  const [formData, setFormData] = useState({
-    name: "",
-    gender: "",
-    country: "",
-    agree: false,
-  });
-  const [formError, setFormError] = useState({
-    nameError: "",
-    genderError: "",
-    countryError: "",
-    agreeError: "",
-  });
-  function onSubmit(e) {
-    e.preventDefault();
-    setFormError({
-      nameError: "",
-      genderError: "",
-      countryError: "",
-      agreeError: false,
-    });
-    if (!formData.name) {
-      setFormError((state) => {
-        return { ...state, nameError: "Please enter name" };
+  const [loading, setLoading] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [updateId, setUpdateId] = useState(null);
+  const [data, setData] = useState([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm();
+  async function finalSubmission(data) {
+    console.log(data);
+    try {
+      setLoading(true);
+      const res = await axios({
+        method: "POST",
+        url: "http://localhost:5000/prisma",
+        data: data,
       });
-    }
-    if (!formData.gender) {
-      setFormError((state) => {
-        return { ...state, genderError: "Please select a gender" };
-      });
-    }
-    if (!formData.country) {
-      setFormError((state) => {
-        return { ...state, countryError: "Please select a country" };
-      });
-    }
-    if (!formData.agree) {
-      setFormError((state) => {
-        return { ...state, agreeError: "Please select the checkbox" };
-      });
+      getData();
+      console.log(res.data);
+    } catch (err) {
+      console.log(err.response);
+    } finally {
+      setLoading(false);
     }
   }
-  async function posting(e) {
-    e.preventDefault();
+  async function getData() {
     try {
-      const data = await axios({
-        method: "post",
-        url: "http://localhost:5001/post-data",
-        data: formData,
+      const res = await axios({
+        method: "GET",
+        url: "http://localhost:5000/prisma",
       });
-      console.log(data);
+      setData(res.data);
+    } catch (err) {
+      console.log(err.response);
+    }
+  }
+  async function handleDelete(data) {
+    try {
+      setLoadingDelete(true);
+      const res = await axios({
+        method: "DELETE",
+        url: `http://localhost:5000/prisma/${data.id}`,
+      });
+      getData();
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingDelete(false);
+    }
+  }
+  async function updateData(data) {
+    console.log(data);
+    setUpdateId(data.id);
+    setIsUpdate(true);
+    setValue("name", data.name);
+    setValue("email", data.email);
+  }
+  async function updateSubmission(data) {
+    console.log("update: ", data);
+    try {
+      const res = await axios({
+        method: "PUT",
+        url: `http://localhost:5000/prisma/${updateId}`,
+        data: { name: data.name, email: data.email },
+      });
+      getData();
+      console.log(res.data);
     } catch (err) {
       console.log(err);
     }
   }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
-    <>
-      <form onSubmit={posting}>
+    <div>
+      <form
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          alignItems: "center",
+        }}
+        onSubmit={handleSubmit(isUpdate ? updateSubmission : finalSubmission)}
+      >
         <input
-          value={formData.name}
+          {...register("name", {
+            required: "Please a name is required",
+            maxLength: { message: "something max", value: 10 },
+            minLength: { message: "something min", value: 3 },
+          })}
           placeholder="Name"
-          onChange={(e) => {
-            setFormData({ ...formData, name: e.target.value });
-          }}
           type="text"
         />
-        <span className="error">{formError.nameError}</span>
-        <div>
-          <label>
-            Male
-            <input
-              name="gender"
-              onChange={(e) => {
-                setFormData({ ...formData, gender: e.target.value });
-              }}
-              type="radio"
-              value="male"
-              checked={formData.gender === "male" ? true : false}
-            />
-          </label>
-          <label>
-            Female
-            <input
-              name="gender"
-              onChange={(e) => {
-                setFormData({ ...formData, gender: e.target.value });
-              }}
-              type="radio"
-              value="female"
-              checked={formData.gender === "female" ? true : false}
-            />
-          </label>
-        </div>
-        <span className="error">{formError?.genderError}</span>
-        <div>
-          <select
-            value={formData.country}
-            name="country"
-            onChange={(e) => {
-              setFormData({ ...formData, country: e.target.value });
-            }}
-          >
-            <option value="">Select...</option>
-            <option value="nep">Nepal</option>
-            <option value="ind">India</option>
-            <option value="usa">USA</option>
-          </select>
-        </div>
-        <span className="error">{formError?.countryError}</span>
-        <label>
-          <input
-            type="checkbox"
-            onChange={(e) => {
-              setFormData({ ...formData, agree: e.target.checked });
-            }}
-            checked={formData.agree}
-          />
-          Please agree
-        </label>
-        <span className="error">{formError.agreeError}</span>
+        <div>{errors?.name?.message}</div>
         <br />
-        <button type="submit">submit</button>
+        <input
+          {...register("email", {
+            required: "Please password is required",
+            maxLength: { message: "something max", value: 10 },
+            minLength: { message: "something min", value: 3 },
+          })}
+          placeholder="email"
+          type="text"
+        />
+        <div>{errors?.email?.message}</div>
+        {/* <select {...register("gender", { required: "Please select a gender" })}>
+          <option value=""></option>
+          <option value="female">female</option>
+          <option value="male">male</option>
+          <option value="other">other</option>
+        </select> */}
+
+        {!isUpdate ? (
+          <button
+            className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
+            disabled={loading}
+            type="submit"
+          >
+            <div className="flex items-center gap-3">
+              submit1{loading && <Spinner />}
+            </div>
+          </button>
+        ) : (
+          <button
+            className="bg-slate-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
+            disabled={loading}
+            type="submit"
+          >
+            <div className="flex items-center gap-3">
+              update{loading && <Spinner />}
+            </div>
+          </button>
+        )}
       </form>
-    </>
+      <div className="relative overflow-x-auto">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Name
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Email
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, index) => {
+              return (
+                <tr
+                  key={index}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                >
+                  <td className="px-6 py-4">{item.name}</td>
+                  <td className="px-6 py-4">{item.email}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-5">
+                      <button
+                        onClick={() => updateData(item)}
+                        className="bg-green-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        Select {item.id}
+                      </button>
+                      <button
+                        disabled={loadingDelete}
+                        onClick={() => handleDelete(item)}
+                        className="bg-red-500 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        <div className="flex gap-2">
+                          Delete {item.id}
+                          {loadingDelete && <Spinner />}
+                        </div>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 

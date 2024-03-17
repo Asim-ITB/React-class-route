@@ -1,9 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import GlobalContext from "../../GlobalContext";
 function Contact() {
+  const theme = useTheme();
+  console.log(theme.palette.primary.main);
+  const contextValues = useContext(GlobalContext);
+  const { backgroundColor, color } = contextValues;
   const [data, setData] = useState({});
-  const [state, setState] = useState(false);
   async function test() {
     try {
       let data = await axios({
@@ -16,12 +20,6 @@ function Contact() {
       console.log(err.message);
     }
   }
-
-  const newData = {
-    name: "ghorsaine",
-    surname: "anish",
-    class: "9",
-  };
   // async function postData() {
   //   a = 0;
   //   let postReq = await axios({
@@ -51,6 +49,8 @@ function Contact() {
   return (
     <Box
       sx={{
+        backgroundColor: backgroundColor,
+        color: color,
         display: "flex",
         justifyContent: "center",
       }}
